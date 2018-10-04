@@ -25,7 +25,7 @@
 \subtitle{A generic data quality monitoring framework for HEP}
 
 \author{
-\firstname{R\'emi} \lastname{Ete}\inst{1}\fnsep\thanks{\email{remi.ete@desy.de}} 
+\firstname{R\'emi} \lastname{Ete}\inst{1}\fnsep\thanks{\email{remi.ete@desy.de}}
 \and
 \firstname{Antoine} \lastname{Pingault}\inst{2}\fnsep\thanks{\email{antoine.pingault@ugent.be}}
 }
@@ -37,14 +37,14 @@ Ghent University, Department of Physics and Astronomy Proeftuinstraat 86, B-9000
 }
 
 \abstract{%
-Data quality monitoring is the first step to the certification of the recorded data for off-line physics analysis. 
-Dedicated monitoring framework have been developed by many experiments in the past and usually rely on the event data 
-model (EDM) of the experiment, leading to a strong dependency on the data format and storage. We present here a generic 
-data quality monitoring system, DQM4HEP, that has been developed without any assumption on the EDM. This increases the 
+Data quality monitoring is the first step to the certification of the recorded data for off-line physics analysis.
+Dedicated monitoring framework have been developed by many experiments in the past and usually rely on the event data
+model (EDM) of the experiment, leading to a strong dependency on the data format and storage. We present here a generic
+data quality monitoring system, DQM4HEP, that has been developed without any assumption on the EDM. This increases the
 code maintenance, the portability across different experiments and re-usability for future experiment.
-We present the framework architecture and the various tools provided by the software package as well as various 
-performances such as memory usage, stability and network bandwidth. We give an overview of the different experiments 
-using DQM4HEP and the foreseen integration in future other experiments. We finally present the ongoing and future 
+We present the framework architecture and the various tools provided by the software package as well as various
+performances such as memory usage, stability and network bandwidth. We give an overview of the different experiments
+using DQM4HEP and the foreseen integration in future other experiments. We finally present the ongoing and future
 software development for DQM4HEP and long term prospects.
 }
 %
@@ -52,16 +52,31 @@ software development for DQM4HEP and long term prospects.
 %
 \section{Introduction}
 \label{sec:intro}
-Usual introduction ... bla bla bla
 
+Online monitoring systems are crucial while taking experimental data. The main tasks of these systems are to provide a quick overview of the detector and sub-detector status, and to evaluate the quality of these data. More technically, the online framwork should provide the following ingredients:
+
+\begin{itemize}
+  \item a DAQ link to access the data and talk to the run control,
+  \item a dedicated online analysis framework,
+  \item a visualization system to show the resulting analysis products
+\end{itemize}
+
+Such systems are generally (but not always) decoupled from the data quality monitoring done offline on recorded data or simulated data. By looking at the different data quality monitoring software available on the HEP market, we see that for most of them the architecture rely on the event data model (EDM) of the underlying experiment. This can be seen as a limitation, as the software becomes non-reusable by other experiments.
+
+In this paper, we present a new generic framework for online and offline monitoring called DQM4hep. After introducing the framework architecture and specifications, the different components of DQM4hep are described. The software still being in development, we conclude with a few perspective and incoming features.
 
 \section{The DQM4hep framework}
 \label{sec:framework}
 
-\subsection{Software architecture consideration}
+\subsection{Software architecture and specifications}
 \label{subsec:arch}
 
+
+
 \begin{itemize}
+  \item Event data model abstraction
+  \item Distributed system
+  \item Low cost DAQ link (no DAQ perturbation)
   \item Speed (the more events processed, the better)
   \item Distributed system for the online part
   \item hardware requirement: network bandwidth, memory capacity (N histos in memory)
@@ -125,7 +140,7 @@ Conclusion \\
 \end{itemize}
 
 \section{Aknowledgment}
-\label{sec:conclusion}
+\label{sec:aknowledgment}
 
 If DREAM calorimeter, AIDA2020 aknowledgments
 
@@ -140,7 +155,7 @@ If DREAM calorimeter, AIDA2020 aknowledgments
 % \label{sec-2}
 % Don't forget to give each section, subsection, subsubsection, and
 % paragraph a unique label (see Sect.~\ref{sec-1}).
-% 
+%
 % For one-column wide figures use syntax of figure~\ref{fig-1}
 % \begin{figure}[h]
 % % Use the relevant command for your figure-insertion program
@@ -150,7 +165,7 @@ If DREAM calorimeter, AIDA2020 aknowledgments
 % \caption{Please write your figure caption here}
 % \label{fig-1}       % Give a unique label
 % \end{figure}
-% 
+%
 % For two-column wide figures use syntax of figure~\ref{fig-2}
 % \begin{figure*}
 % \centering
@@ -161,7 +176,7 @@ If DREAM calorimeter, AIDA2020 aknowledgments
 % \caption{Please write your figure caption here}
 % \label{fig-2}       % Give a unique label
 % \end{figure*}
-% 
+%
 % For figure with sidecaption legend use syntax of figure
 % \begin{figure}
 % % Use the relevant command for your figure-insertion program
@@ -172,7 +187,7 @@ If DREAM calorimeter, AIDA2020 aknowledgments
 % \caption{Please write your figure caption here}
 % \label{fig-3}       % Give a unique label
 % \end{figure}
-% 
+%
 % For tables use syntax in table~\ref{tab-1}.
 % \begin{table}
 % \centering
