@@ -53,7 +53,9 @@ software development for DQM4HEP and long term prospects.
 \section{Introduction}
 \label{sec:intro}
 
-Online monitoring systems are crucial while taking experimental data. The main tasks of these systems are to provide a quick overview of the detector and sub-detector status, and to evaluate the quality of these data. More technically, the online framwork should provide the following ingredients:
+Online monitoring systems are crucial while taking experimental data. 
+The main tasks of these systems are to provide a quick overview of the detector and sub-detector status, and to evaluate the quality of these data. 
+More technically, the online framwork should provide the following ingredients:
 
 \begin{itemize}
   \item a DAQ link to access the data and talk to the run control,
@@ -61,9 +63,13 @@ Online monitoring systems are crucial while taking experimental data. The main t
   \item a visualization system to show the resulting analysis products
 \end{itemize}
 
-Such systems are generally (but not always) decoupled from the data quality monitoring done offline on recorded data or simulated data. By looking at the different data quality monitoring software available on the HEP market, we see that for most of them the architecture rely on the event data model (EDM) of the underlying experiment. This can be seen as a limitation, as the software becomes non-reusable by other experiments.
+Such systems are generally (but not always) decoupled from the data quality monitoring done offline on recorded data or simulated data. 
+By looking at the different data quality monitoring software available on the HEP market, we see that for most of them the architecture rely on the event data model (EDM) of the underlying experiment. 
+This can be seen as a limitation, as the software becomes non-reusable by other experiments.
 
-In this paper, we present a new generic framework for online and offline monitoring called DQM4hep. After introducing the framework architecture and specifications, the different components of DQM4hep are described. The software still being in development, we conclude with a few perspective and incoming features.
+In this paper, we present a new generic framework for online and offline monitoring called DQM4hep. 
+After introducing the framework architecture and specifications, the different components of DQM4hep are described. 
+The software still being in development, we conclude with a few perspective and incoming features.
 
 \section{The DQM4hep framework}
 \label{sec:framework}
