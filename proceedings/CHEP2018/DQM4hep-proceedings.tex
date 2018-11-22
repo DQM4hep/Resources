@@ -12,6 +12,33 @@
 %
 \documentclass{webofc}
 \usepackage[varg]{txfonts}   % Web of Conferences font
+\usepackage{listings}
+\usepackage{xcolor}
+
+\lstset { %
+    belowcaptionskip=1\baselineskip,
+    breaklines=true,
+    % frame=L,
+    xleftmargin=\parindent,
+    language=C++,
+    showstringspaces=false,
+    basicstyle=\footnotesize\ttfamily,
+    keywordstyle=\bfseries\color{green!40!black},
+    commentstyle=\itshape\color{purple!40!black},
+    identifierstyle=\color{blue},
+    stringstyle=\color{orange},
+    numbers=left
+    % language=C++,
+    % basicstyle=\ttfamily,
+    % keywordstyle=\color{red}\ttfamily,
+    % stringstyle=\color{gray}\ttfamily,
+    % commentstyle=\color{blue}\ttfamily,
+    % morecomment=[l][\color{magenta}]{\#}
+    % backgroundcolor=\color{black!5}, % set backgroundcolor
+    % basicstyle=\footnotesize,% basic font setting
+    % numbers=left
+}
+
 %
 % Put here some packages required or/and some personnal commands
 %
@@ -77,21 +104,61 @@ The software still being in development, we conclude with a few perspective and 
 \subsection{Software architecture and specifications}
 \label{subsec:arch}
 
+The DQM4hep framework is built on top of the so-called plugin system component. A plugin is a C++ \textit{factories} that are compiled in separate shared libraries and loaded at runtime by the plugin system. This system allows for building a framework for which the behavior of the key components can be changed at runtime. For examples, user plugins can be online analysis that are fully experiment specific.
 
+In order to have a really generic system, the software should not depend on any EDM or data format. This allows to have a higly-reusable software for different experiments. By construction, in DQM4hep, the data type is user defined and wrapped in a higher level structure. As the data has to be transported over network, the data streaming as well as file reading and writing, also have to be user-defined. The user-streaming interface can be implemented as plugins that the framework can use in online application to serialize (de-serialize) data before sending (after receiving) to (from) an endpoint.
 
-\begin{itemize}
-  \item Event data model abstraction
-  \item Distributed system
-  \item Low cost DAQ link (no DAQ perturbation)
-  \item Speed (the more events processed, the better)
-  \item Distributed system for the online part
-  \item hardware requirement: network bandwidth, memory capacity (N histos in memory)
-  \item Memory stability: over hours/days
-  \item Something else ?
-\end{itemize}
+An important requirement for the online component of the monitoring system is to be distributed. A typical user analysis handles hundred or many hundreds of histograms that are filled whenever data are received from the DAQ system. The computer process in this case is particularly \textit{greedy} in terms of memory. Analysing data in a single process is thus very limited and must be distributed over different process or computers depending on the available resources on each machine. This also increase the speedup of analysis as the resources are shared and allows for more data to be processed in the same amount of time. The online analysis application has to be carefully designed in terms of memory management as it may run for many hours and stay stable.
+
+To receive data from the DAQ system, a \textit{hook} must be available for the monitoring system to forward data to analysis. It can be of many forms: shared-memory (\texttt{/dev/shm/}), network (TCP/IP), database... An important requirement of a DQM system is to do not impact on the performance of the data acquisition itself to perform a monitoring task. By performance here we mean slowing down the acquisition or either crash the acquisition process.
 
 \subsection{The core components}
 \label{subsec:core}
+
+\paragraph{The plugin system}
+
+As stated before, DQM4hep is built on top a plugin system. The \texttt{PluginManager} class is a singleton class holding all plugins for a specific application instance. The plugins are loaded by opening shared libraries using the \texttt{dlopen()} function at runtime. A user class object can be created on the heap by querying a specific plugin (by name) to the \texttt{PluginManager} and by calling \texttt{Plugin::create()}.
+
+\paragraph{The event data model}
+
+The core component of DQM4hep defines a high level class \texttt{Event} to handle a user-defined event class. This handler is particularly useful because it allows to transport the user-defined event through an application workflow without making any assumption on the underlying implementation:
+
+\begin{lstlisting}
+// a user defined function
+EventPtr createEvent() {
+  // a DQM4hep event ...
+  EventPtr event = Event::create<MyEvent>();
+  // ... wrapping a user-defined structure
+  MyEvent *myevt = event->get<MyEvent>();
+  myevt->setTimeStamp(time(0));
+  myevt->setData({0.5, 856., 485.});
+  return event;
+}
+\end{lstlisting}
+
+\paragraph{Event streaming}
+
+In order to send or receive events from the network, events have to be converted from or to binary. As the event is user-defined, the event streaming also has to be user-defined. The framework defines a base class \texttt{EventStreamerPlugin} to stream in and out event that users have to implement:
+
+\begin{lstlisting}
+class EventStreamerPlugin {
+public:
+  // creates user-defined event
+  virtual EventPtr createEvent() const = 0;
+  // write event to TBuffer object
+  virtual StatusCode write(EventPtr event, TBuffer &buffer) = 0;
+  // read event from TBuffer object
+  virtual StatusCode read(EventPtr event, TBuffer &buffer) = 0;
+};
+\end{lstlisting}
+
+The user implementation can be declared as a plugin and loaded at runtime by the \texttt{PluginManager}. The combinaison of \texttt{PluginManager}, \texttt{Event} and \texttt{EventStreamerPlugin} is the backbone of the framework.
+
+\paragraph{Monitor elements}
+
+The concept of \textit{monitor element} is central in data quality monioring software. A monitor element encasulate a (generally) reduced subset of data monitored by the framework. The most commonly used monitor element kind in HEP is histogram, but can also be a scalar value, time stamped graph (slow control), 2D histograms (hit maps), etc ... 
+
+
 
 \begin{itemize}
   \item The plugin system
