@@ -14,6 +14,14 @@
 \usepackage[varg]{txfonts}   % Web of Conferences font
 \usepackage{listings}
 \usepackage{xcolor}
+\usepackage[colorlinks]{hyperref}
+\lstdefinelanguage{json}{
+  string=[s]{"}{"},
+  stringstyle=\color{blue},
+  comment=[l]{:},
+  commentstyle=\color{black}
+}
+\lstset{language=json}
 
 \lstset { %
     belowcaptionskip=1\baselineskip,
@@ -105,6 +113,14 @@ In order to have a really generic system, the software should not depend on any 
 An important requirement for the online component of the monitoring system is to be distributed. A typical user analysis handles hundred or many hundreds of histograms that are filled whenever data are received from the DAQ system. The computer process in this case is particularly \textit{greedy} in terms of memory. Analysing data in a single process is thus very limited and must be distributed over different process or computers depending on the available resources on each machine. This also increase the speedup of analysis as the resources are shared and allows for more data to be processed in the same amount of time. The online analysis application has to be carefully designed in terms of memory management as it may run for many hours and stay stable.
 
 To receive data from the DAQ system, a \textit{hook} must be available for the monitoring system to forward data to analysis. It can be of many forms: shared-memory (\texttt{/dev/shm/}), network (TCP/IP), database... An important requirement of a DQM system is to do not impact on the performance of the data acquisition itself to perform a monitoring task. By performance here we mean slowing down the acquisition or either crash the acquisition process.
+A global view of the architecture is displayed in~\autoref{fig:GlobalArchitectureDiagram}.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=.95\textwidth]{figs/GlobalArchitectureDiagram.pdf}
+  \caption{Global architecture of DQM4hep.}
+  \label{fig:GlobalArchitectureDiagram}
+\end{figure}
 
 \subsection{The core components}
 \label{subsec:core}
@@ -117,7 +133,7 @@ As stated before, DQM4hep is built on top a plugin system. The \texttt{PluginMan
 
 The core component of DQM4hep defines a high level class \texttt{Event} to handle a user-defined event class. This handler is particularly useful because it allows to transport the user-defined event through an application workflow without making any assumption on the underlying implementation:
 
-\begin{lstlisting}
+\begin{lstlisting}{language=C++}
 // a user defined function
 EventPtr createEvent() {
   // a DQM4hep event ...
@@ -134,7 +150,7 @@ EventPtr createEvent() {
 
 In order to send or receive events from the network, events have to be converted from or to binary. As the event is user-defined, the event streaming also has to be user-defined. The framework defines a base class \texttt{EventStreamerPlugin} to stream in and out event that users have to implement:
 
-\begin{lstlisting}
+\begin{lstlisting}{language=C++}
 class EventStreamerPlugin {
 public:
   // creates user-defined event
@@ -155,38 +171,122 @@ The concept of \textit{monitor element} is central in data quality monioring sof
 
 
 \begin{itemize}
-  \item The plugin system
-  \item The event data model abstraction
-  \item The event streamer
-  \item The monitor element
+  % \item The plugin system
+  % \item The event data model abstraction
+  % \item The event streamer
+  % \item The monitor element
   \item The quality test + report
   \item Others ?
 \end{itemize}
 
 \subsection{The online system}
 \label{subsec:online}
+The main purpose of a data quality monitoring system is the visualization and quality assessment of detectors data in a real time environment.
+
+\paragraph{Collectors}\label{par:Collectors}
+The first stage in this chain is to get the data from the DAQ system to the analyses modules.
+This is done by building and wrapping user-defined event from the DAQ data as DQM4hep events before streaming them to the analyses modules.
+Since there might be an indefinite number of modules running on multiple hosts, there is a need for a central access and distribution point of this data. This is the role of the collectors, of which two types are defined:
 
 \begin{itemize}
-  \item The analysis module
-  \item The standalone module
-  \item The collectors: events and monitor elements
-  \item Interface to DAQ systems: run control and event source
-  \item Others ?
+  \item The \texttt{Event collectors}, which collect \texttt{DQM4hep Event} from the event builder and distribute them to analyses modules.  
+  \item The \texttt{Monitor Element collectors}, which collect the product of the analyses, called \texttt{Monitor Elements (ME)}, and distribute them to visualization interfaces.
 \end{itemize}
+These collectors are defined by the framework and can't be redefined by the user as there is no need for it. 
+\textcolor{red}{\textbf{Talk about the queries/subscription?}}
+
+
+\paragraph{Modules}\label{par:Modules}
+Two major flavor are needed when running an experiments, the data from the detector itself and the data from the slow control system.
+To cope with these two possible type of input, two types of modules are defined within the framework, the analysis module and the standalone module respectively.
+They are both user defined plugins that can be started or stopped at any point while the framework is running. Their goal is to reduce the initial amount of data to a few useful elements, the \texttt{Monitor Elements}. Quality of the output data can also be assessed and its results will be stored within the element.
+
+Where analyses modules use DQM4hep event streamed by the \texttt{Event collectors} as input, the standalone module 
+used data from external sources(pressure sensors, detector high voltages, etc.). They can be run independently from the DAQ hance their name. 
+Both module types can be run independently in online or offline \textcolor{red}{\textbf{Add definition of offline?,(reading data from files instead of direct pulling from the DAQ)}} mode.
+
+% \begin{itemize}
+%   \item The analysis module
+%   \item The standalone module
+%   \item The collectors: events and monitor elements
+%   \item Interface to DAQ systems: run control and event source
+%   \item Others?
+% \end{itemize}
 
 \subsection{The online visualization}
 \label{subsec:vis}
 
-\begin{itemize}
-  \item The job control Gui
-  \item The Qt Gui
-  \item Toward a web interface (work in progress)
-\end{itemize}
+To ease the use of the framework, several Graphical User Interfaces (GUI) were implemented. For now only QT~\cite{QT} based interfaces are fully functional and available for end-users. 
 
-+ screenshots
+\paragraph{Job control}\label{par:JobControl}
+
+The framework needs multiple applications (jobs) to run at the same time (Analysis modules, run control server, collectors, etc.), sometimes over different host for load balancing purposes. For practical reasons it is important to be able to easily control and monitor these processes from a central point. This is achieved through the use of \textit{Job control servers} that run as daemons on every host taking part in the deployment. Once running they wait for remote client interfaces, called \textit{Job control interfaces}, to connect and manage the local processes. A GUI, as seen in \autoref{fig:JobControlGUI}, can then be used as a central point to monitor and control all the jobs across all the hosts. When using this interface, all the jobs needing to run need to be defined and configured (process name, host, options, etc.) through a JSON \textcolor{red}{\textbf{ref needed?}} configuration file. To simplify this configuration process, a JSON parser is implemented in the framework which provides the ability to add comments and variable expansion as can be seen in~\autoref{lst:jsonConfig}.
+
+\begin{lstlisting}[label={lst:jsonConfig}, language=json]
+{
+  "VARS" :{ // Define some global vars
+      "DNS_NODE" : "Host1"
+  },
+  "HOSTS":{ 
+    "Host1":[ // List of processes to run on the host
+      { 
+        "NAME": "MyFirstApp",
+        "ARGS": [ "--dns-host": "${DNS_NODE}"] // Reuse variable
+      }
+    ]
+  }
+}
+\end{lstlisting}
+\textcolor{red}{\textbf{If we keep this, make sure it appears on the same page}}
+
+\begin{figure}
+\centering
+\includegraphics[width=.95\textwidth]{figs/JobControlInterface.pdf}
+\caption{Job interface window. Applications are ordered by host and can be controlled (start, stop, restart) and monitored (status, logs, etc.) from within this interface.}
+\label{fig:JobControlGUI}
+\end{figure}
+
+
+\paragraph{Run control}\label{par:RunControl}
+
+For an offline or standalone deployment, i.e. no coupling with a DAQ system, a GUI can be used to control (start, stop, configure) and monitor (status, log) the run-control state . \textcolor{red}{\textbf{Add a description of the run management if not done before.}} 
+
+\paragraph{Main Monitoring Window}\label{par:MainGUI}
+
+Most users will predominantly use only this interface as its function is to display the end results of the analyses. A general view of the interface can be seen in~\autoref{fig:DQMMainViz}.
+The first step in using this interface consists to browse the available \texttt{Monitor Element Collectors} and select the \texttt{ME} to be displayed later.
+This is done through the browse window which provides various search function (by ME name, analysis module, etc.).
+A tree like architecture, with folder and subfolders, is then available on the left side of the main interface to browse previously selected ME.
+Apart from the top-level folders, which are named after the analysis module the ME belongs to, the organization of this structure is user-defined within said analysis module. 
+The user can then select which \texttt{ME} to display in the drawing area.
+Displayed \texttt{ME} can be rearranged at will in the drawing canvas and multiple tabs can be defined to display a any selection of \texttt{ME}. 
+Window background (\textcolor{red}{\textbf{Or is it only the small icon on the top left corner?}}) of each \texttt{ME} has a color corresponding to the results of its selected quality test for a quick visual assessment of its quality from the user.
+Multiple test can be assigned to each \texttt{ME} and their details and report can be accessed via a context menu. \textcolor{red}{\textbf{What happens to the icon color when multiple tests are defined? I suppose only one of them is used?}}
+As mentioned before (\textcolor{red}{\textbf{Make sure it is actually mentioned, add a ref to the paragraph?}}) each \texttt{ME} is a valid \texttt{ROOT}~\cite{ROOT} object and can therefore use all of the functionality offered by ROOT (fitting, rescaling, etc.).
+Multiple instances of this interface can be opened on any host, provided they are on the same network, and connect to the available \texttt{Monitor Element Collectors}. 
+
+client can be opened 
+\begin{figure}
+  \centering
+  \includegraphics[width=.95\textwidth]{figs/MaintInterfaceGUI.pdf}
+    \caption{\label{fig:DQMMainViz} Main window of the monitoring GUI.
+    1: Option for manual/auto update.
+    2: \texttt{Monitor Elements} (\texttt{ME}) organized in a tree-like structure
+    3: Open Browse window to create \texttt{ME} selection available in 2.
+    4: Drawing section for \texttt{ME}, can be organized in multiple tabs.
+    5: Drawn \texttt{ME} are valid ROOT object that can be manipulated (zoom, scale change, fit, etc.)
+    }
+\end{figure}
+
+\paragraph{Web Interface}\label{par:WebGUI}
+A web based interface regrouping all the GUI mentioned has also been developed. As of this writing, it is still missing some key links to the back-end to be fully operational for the end-users. The main advantage of such interface is the portability as the only prerequisite is a recent internet browser. 
 
 \section{Detectors using DQM4hep}
 \label{sec:detectors}
+
+The work on this framework was started within the CALICE~\footnote{CAlorimeter for LInear Collider Experiment} -Semi Digital Hadronic CALorimeter (SDHCAL) collaboration. As such, a dedicated implementation, based on the LCIO~\cite{LCIO} Event Data Model, was produced to demonstrate the capability of the software. This implementation has been successfully used in the last 5 test beam campaigns of the SDHCAL prototype.  
+
+Since then most experiments from the CALICE collaboration also adopted the framework for their DQM needs. It has also been used in combination between two detectors.
 
 \begin{itemize}
   \item SDHCAL test-beams
