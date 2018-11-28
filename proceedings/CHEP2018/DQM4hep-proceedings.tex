@@ -47,15 +47,16 @@
     % numbers=left
 }
 
+
 %
-% Put here some packages required or/and some personnal commands
+% Put here some packages required or/and some personal commands
 %
 %
 \begin{document}
 %
 \title{DQM4hep}
 %
-% subtitle is optionnal
+% subtitle is optional
 %
 \subtitle{A generic data quality monitoring framework for HEP}
 
@@ -88,7 +89,7 @@ software development for DQM4HEP and long term prospects.
 \section{Introduction}
 \label{sec:intro}
 
-Online monitoring systems are crucial while taking experimental data. The main tasks of these systems are to provide a quick overview of the detector and sub-detector status, and to evaluate the quality of these data. More technically, the online framwork should provide the following ingredients:
+Online monitoring systems are crucial while taking experimental data. The main tasks of these systems are to provide a quick overview of the detector and sub-detector status, and to evaluate the quality of these data. More technically, the online framework should provide the following ingredients:
 
 \begin{itemize}
   \item a DAQ link to access the data and talk to the run control,
@@ -96,7 +97,7 @@ Online monitoring systems are crucial while taking experimental data. The main t
   \item a visualization system to show the resulting analysis products
 \end{itemize}
 
-Such systems are generally (but not always) decoupled from the data quality monitoring done offline on recorded data or simulated data. By looking at the different data quality monitoring software available on the HEP market, we see that for most of them the architecture rely on the event data model (EDM) of the underlying experiment. This can be seen as a limitation, as the software becomes non-reusable by other experiments.
+Such systems are generally (but not always) decoupled from the data quality monitoring done offline on recorded data or simulated data. By looking at the different data quality monitoring software available on the HEP market, we see that for most of them the architecture relies on the event data model of the underlying experiment. This can be seen as a limitation, as the software becomes non-reusable by other experiments.
 
 In this paper, we present a new generic framework for online and offline monitoring called DQM4hep. After introducing the framework architecture and specifications, the different components of DQM4hep are described. The software still being in development, we conclude with a few perspective and incoming features.
 
@@ -106,13 +107,14 @@ In this paper, we present a new generic framework for online and offline monitor
 \subsection{Software architecture and specifications}
 \label{subsec:arch}
 
-The DQM4hep framework is built on top of the so-called plugin system component. A plugin is a C++ \textit{factories} that are compiled in separate shared libraries and loaded at runtime by the plugin system. This system allows for building a framework for which the behavior of the key components can be changed at runtime. For examples, user plugins can be online analysis that are fully experiment specific.
+The DQM4hep framework is built on top of the so-called plugin system component. Plugins are C++ \textit{factories} that are compiled in separate shared libraries and loaded at runtime by the plugin system. This system allows for building a framework for which the behavior of the key components can be changed at runtime. For examples, user plugins can be online analyses that are fully experiment specific.
 
-In order to have a really generic system, the software should not depend on any EDM or data format. This allows to have a higly-reusable software for different experiments. By construction, in DQM4hep, the data type is user defined and wrapped in a higher level structure. As the data has to be transported over network, the data streaming as well as file reading and writing, also have to be user-defined. The user-streaming interface can be implemented as plugins that the framework can use in online application to serialize (de-serialize) data before sending (after receiving) to (from) an endpoint.
+In order to have a really generic system, the software should not depend on any event data model (EDM) or data format. This allows to have a highly-reusable software for different experiments. By construction, in DQM4hep, the data type is user defined and wrapped in a higher level structure. As the data has to be transported over network, the data streaming as well as file reading and writing, also have to be user-defined. The user-streaming interface can be implemented as plugins that the framework can use in online application to serialize (de-serialize) data before sending (after receiving) to (from) an endpoint.
 
-An important requirement for the online component of the monitoring system is to be distributed. A typical user analysis handles hundred or many hundreds of histograms that are filled whenever data are received from the DAQ system. The computer process in this case is particularly \textit{greedy} in terms of memory. Analysing data in a single process is thus very limited and must be distributed over different process or computers depending on the available resources on each machine. This also increase the speedup of analysis as the resources are shared and allows for more data to be processed in the same amount of time. The online analysis application has to be carefully designed in terms of memory management as it may run for many hours and stay stable.
+An important requirement for the online component of the monitoring system is to be distributed. A typical user analysis handles tens or hundreds of histograms that are filled whenever data are received from the DAQ system. The computer process in this case is particularly \textit{greedy} in terms of memory. Analyzing data in a single process is thus very limited and must be distributed over different process or computers depending on the available resources on each machine. This also increase the speedup of analysis as the resources are shared and allows for more data to be processed in the same amount of time. The online analysis application has to be carefully designed in terms of memory management as it may run for many hours and stay stable.
 
-To receive data from the DAQ system, a \textit{hook} must be available for the monitoring system to forward data to analysis. It can be of many forms: shared-memory (\texttt{/dev/shm/}), network (TCP/IP), database... An important requirement of a DQM system is to do not impact on the performance of the data acquisition itself to perform a monitoring task. By performance here we mean slowing down the acquisition or either crash the acquisition process.
+To receive data from the DAQ system, a \textit{hook} must be available for the monitoring system to forward data to analysis. It can be of many forms: shared-memory (\texttt{/dev/shm/}), network (TCP/IP), database, etc. An important requirement of a DQM system is to not impact the performances of the data acquisition itself to perform a monitoring task. By performance here we mean slowing down or crash the acquisition process.
+
 A global view of the architecture is displayed in~\autoref{fig:GlobalArchitectureDiagram}.
 
 \begin{figure}
@@ -127,7 +129,7 @@ A global view of the architecture is displayed in~\autoref{fig:GlobalArchitectur
 
 \paragraph{The plugin system}
 
-As stated before, DQM4hep is built on top a plugin system. The \texttt{PluginManager} class is a singleton class holding all plugins for a specific application instance. The plugins are loaded by opening shared libraries using the \texttt{dlopen()} function at runtime. A user class object can be created on the heap by querying a specific plugin (by name) to the \texttt{PluginManager} and by calling \texttt{Plugin::create()}.
+As stated before, DQM4hep is built on top of a plugin system. The \texttt{PluginManager} class is a singleton class holding all plugins for a specific application instance. The plugins are loaded by opening shared libraries using the \texttt{dlopen()} function at runtime. A user class object can be created on the heap by querying a specific plugin (by name) to the \texttt{PluginManager} and by calling \texttt{Plugin::create()}.
 
 \paragraph{The event data model}
 
@@ -162,12 +164,11 @@ public:
 };
 \end{lstlisting}
 
-The user implementation can be declared as a plugin and loaded at runtime by the \texttt{PluginManager}. The combinaison of \texttt{PluginManager}, \texttt{Event} and \texttt{EventStreamerPlugin} is the backbone of the framework.
+The user implementation can be declared as a plugin and loaded at runtime by the \texttt{PluginManager}. The combination of \texttt{PluginManager}, \texttt{Event} and \texttt{EventStreamerPlugin} is the backbone of the framework.
 
 \paragraph{Monitor elements}
 
-The concept of \textit{monitor element} is central in data quality monioring software. A monitor element encasulate a (generally) reduced subset of data monitored by the framework. The most commonly used monitor element kind in HEP is histogram, but can also be a scalar value, time stamped graph (slow control), 2D histograms (hit maps), etc ... 
-
+The concept of \textit{monitor element} is central in data quality monitoring software. A monitor element encapsulate a (generally) reduced subset of data monitored by the framework. The most commonly used monitor element kind in HEP is histogram, but can also be a scalar value, time stamped graph (slow control), 2D histograms (hit maps), etc.
 
 
 \begin{itemize}
@@ -176,7 +177,7 @@ The concept of \textit{monitor element} is central in data quality monioring sof
   % \item The event streamer
   % \item The monitor element
   \item The quality test + report
-  \item Others ?
+  \item Others?
 \end{itemize}
 
 \subsection{The online system}
@@ -306,10 +307,10 @@ Conclusion \\
   \item Continuous integration
 \end{itemize}
 
-\section{Aknowledgment}
-\label{sec:aknowledgment}
+\section{Acknowledgment}
+\label{sec:acknowledgment}
 
-If DREAM calorimeter, AIDA2020 aknowledgments
+If DREAM calorimeter, AIDA2020 acknowledgments
 
 
 % \section{Introduction}
