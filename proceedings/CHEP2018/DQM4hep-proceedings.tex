@@ -15,6 +15,7 @@
 \usepackage{listings}
 \usepackage{xcolor}
 \usepackage[colorlinks]{hyperref}
+\usepackage{wrapfig}
 
 \lstdefinelanguage{json}{
   string=[s]{"}{"},
@@ -196,25 +197,35 @@ The user implementation can be declared as a plugin and loaded at runtime by the
 The combination of \texttt{dqm4hep::PluginManager}, \texttt{dqm4hep::Event} and \texttt{dqm4hep::EventStreamerPlugin} gives the 
 fully required flexibility for such a framework. 
 
+{ % bracket needed for wrapfigure for this paper ...
+
+\begin{wrapfigure}{R}{0.5\textwidth}
+    \includegraphics[width=\linewidth]{figs/QTestRunner.pdf}
+    \caption{Offline quality test processing workflow: from monitor elements and references to quality test reports}
+    \label{fig:QTestsAndQReports}
+\end{wrapfigure} 
+
 \paragraph{Monitor elements}
 
 The concept of \textit{monitor element} is central in data quality monitoring software.
 A monitor element encapsulate a summary of the data being monitored by the framework.
-The most commonly used monitor element kind in HEP is histogram, but it can also be a scalar value, a time stamped graph (slow control), a 2D histograms (hit maps), etc. 
+The most commonly used monitor element kind in HEP is histogram, but it can also be a scalar value, a time stamped graph 
+(slow control), a 2D histograms (hit maps), etc. 
 
 \paragraph{Quality test and report}
 
-Whereas the monitor element provides a summary of a data set, the \textit{quality test} implements the logic of testing an element or evaluating its quality. These tests are also designed to detect problems as some distribution .......
+Whereas the monitor element provides a summary of a data set, the \textit{quality test} implements the logic of testing 
+an element or evaluating its quality. These tests are also designed to detect problems as some observables (mean of 
+distribution, counters, etc ...) may deviate from expectations during or after data taking. \autoref{fig:QTestsAndQReports} 
+shows the workflow of monitor element 
 
-
-\begin{itemize}
-  % \item The plugin system
-  % \item The event data model abstraction
-  % \item The event streamer
-  % \item The monitor element
-  \item The quality test + report
-  \item Others?
-\end{itemize}
+} % bracket needed for wrapfigure for this paper ...
+% infortunately have to do the job of wrapfigure here ...
+\noindent testing in offline mode. Monitor elements are stored in ROOT files as well as potential 
+references provided by experts. 
+The quality tests and the monitor elements to test are described in XML format and passed to 
+a program for processing. A quality test report containing quality test status (success, warning, error), quality estimate 
+(in range [0;1]) and additional custom user data, is output in JSON format.
 
 \subsection{The online system}
 \label{subsec:online}
