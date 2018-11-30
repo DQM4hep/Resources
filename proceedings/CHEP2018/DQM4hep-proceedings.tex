@@ -233,16 +233,17 @@ a program for processing. A \textit{quality test report}, containing quality tes
 The main purpose of a data quality monitoring system is the visualization and quality assessment of detectors data in a real time environment.
 
 \paragraph{Collectors}\label{par:Collectors}
-The first stage in this process is to get the data from the DAQ system to the analyses modules.
+The first stage in this process \textcolor{red}{(which process ?)} is to transport the data from the DAQ system to the analyses modules.
 This is done by building and wrapping user-defined event from the DAQ data as DQM4hep events before streaming them to the analyses modules.
 Since there might be an indefinite number of modules running on multiple hosts, there is a need for a central access and distribution point of this data. This is the role of the collectors, of which two types are defined:
 
 \begin{itemize}
-  \item The \texttt{Event collector}, which collects \texttt{DQM4hep Event} from the event builder and distributes them to the analyses modules. 
-  \item The \texttt{Monitor Element collector}, which collects the products of these analyses, the \texttt{Monitor Elements}, and distributes them to the visualization interfaces.
+  \item The \textit{event collector}, which collects \texttt{dqm4hep::Event} from the event builder and distributes them to the analyses modules. 
+  \item The \textit{monitor element collector}, which collects the products of these analyses, the \textit{monitor elements}, and distributes them to the visualization interfaces.
 \end{itemize}
 
-\textcolor{red}{\textbf{The next paragraph is not really useful in the end. I am also now wondering why we needs the client to be able to run in query mode, isn't update mode always beneficial? In the end the update is just a query from the rolling queue vs the collector, Wouldn't it be better to have the queue implemented in the collector vs the client?}}
+\textcolor{red}{\textbf{The next paragraph is not really useful in the end. I am also now wondering why we needs the client to be able to run in query mode, isn't update mode always beneficial? In the end the update is just a query from the rolling queue vs the collector, Wouldn't it be better to have the queue implemented in the collector vs the client?}} \\
+\textcolor{red}{\textbf{Remi: I think we can remove it. About the mode: we need both because the shifter might not want to see the viz updated all the time but only on query.}}\\
 Once the collectors have received their payload, either from the DAQ or the analyses modules, they can redistribute it in two fashion depending on how the receiving client is running. The client can be either:
 
 \begin{itemize}
@@ -253,11 +254,11 @@ Once the collectors have received their payload, either from the DAQ or the anal
 These collectors are internally defined by the framework and can't be redefined by the user as there is no need for it. 
 
 \paragraph{Modules}\label{par:Modules}
-Two major data flavor are needed when running an experiments, the physics data from the detector itself and the data from the slow control system.
-To cope with these two possible kind of input, two types of modules are defined within the framework, the analysis module and the standalone module respectively.
-They are both user defined plugins that can be started or stopped at any point while the framework is running.
-Their goal is to reduce the initial amount of data to a few useful elements, the \texttt{Monitor Elements}.
-Quality of the output data can also be assessed and its result stored within the element, with the data.
+Two major data flavors are needed when running an experiments, the physics data from the detector itself and the data from the 
+slow control system. To cope with these two possible kind of input, two types of modules are defined within the framework, the 
+analysis module and the standalone module respectively. They are both user defined plugins that can be started or stopped at any 
+point while the framework is running. Their goal is to reduce the initial amount of data to a few useful elements, the 
+\texttt{Monitor Elements}. Quality of the output data can also be assessed and its result stored within the element, with the data.
 
 Where analyses modules use DQM4hep event streamed by the \texttt{Event collectors} as input, the standalone module 
 used data from external sources(pressure sensors, detector high voltages, etc.).
