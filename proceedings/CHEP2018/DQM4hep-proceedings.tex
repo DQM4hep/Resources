@@ -122,12 +122,20 @@ Such a system allows for building a framework with which the behavior of the key
 
 In order to have a really generic monitoring system, the software should not depend on any EDM or data format. 
 This allows to have a highly-reusable software for different experiments. 
-By construction, in DQM4hep, the data type is user defined and wrapped in a higher level structure (\texttt{dqm4hep::Event}). 
-As the data has to be transported over network, the data streaming, as well as file reading and writing facility, have to be user-defined.
+By construction, in DQM4hep, the data type is user defined and wrapped in a higher level handler (\texttt{dqm4hep::Event}). 
+As the data has to be transported over network, the data streaming, as well as file reading and writing facilities, have to be user-defined.
 The user-streaming interface can be encapsulated in a plugin that the framework can use in online application to serialize (de-serialize) data before sending (after receiving) to (from) an endpoint.
 
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=.95\textwidth]{figs/AnalysisModuleArchitecture.pdf}
+  \caption{Global architecture of the DQM4hep framework. The top left corner corresponds to the DAQ system and is not part 
+  of the framework, it is displayed here to show the link between the two systems.}
+  \label{fig:GlobalArchitectureDiagram}
+\end{figure}
+
 An important requirement for the online component of the monitoring system is to be distributed. 
-A typical user analysis handles hundred or many hundreds of histograms that are filled whenever data are received from the DAQ system. 
+A typical user analysis handles a hundred or several hundreds of histograms that are filled whenever data are received from the DAQ system. 
 The analysis program in this case is particularly \textit{greedy} in terms of memory. 
 Analyzing data in a single process is thus very limited and must be distributed over different process or computers depending on the available resources on each machine.
 This also increase the speedup of analysis as the resources are shared and allows for more data to be processed in the same amount of time.
@@ -135,15 +143,8 @@ The online analysis application has to be carefully designed in terms of memory 
 
 To receive data from the DAQ system, data must be forwarded to the monitoring system for analysis.
 The mechanism may be of many forms: shared-memory (if running on same computers), network (TCP/IP), database, etc.
-An important requirement of a DQM system is to avoid slowing or crash the acquisition process.
+An important requirement of a DQM system is to avoid slowing down or crashing the acquisition process.
 A global overview of the framework's architecture is shown in~\autoref{fig:GlobalArchitectureDiagram}.
-
-\begin{figure}
-  \centering
-  \includegraphics[width=.95\textwidth]{figs/AnalysisModuleArchitecture.pdf}
-  \caption{Global architecture of the DQM4hep framework. The top left corner corresponds to the DAQ system and is not part of the framework, it is displayed here to show the link between the two systems. \textcolor{red}{\textbf{Add some details on the figure}}Once the link to the DAQ has been implemented (most probably by a DAQ engineer), physicists only have to implement their analyses to }
-  \label{fig:GlobalArchitectureDiagram}
-\end{figure}
 
 \subsection{The core components}
 \label{subsec:core}
@@ -153,12 +154,12 @@ A global overview of the framework's architecture is shown in~\autoref{fig:Globa
 As stated before, DQM4hep is built on top a plugin system. 
 The \texttt{dqm4hep::PluginManager} class is a singleton class holding all plugins within an application. 
 The plugins are loaded by opening shared libraries using the \texttt{::dlopen()} function at startup. 
-A user class object can be created on the heap by querying a specific plugin (by name) to the \texttt{dqm4hep::PluginManager} and 
+A user class object can be created on the heap by querying a specific plugin to the \texttt{dqm4hep::PluginManager} and 
 by calling \texttt{dqm4hep::Plugin::create()}.
 
 \paragraph{The event data model}
 
-The core component of DQM4hep defines a high level class \texttt{Event} to handle a user-defined event class.
+The core component of DQM4hep defines a high level handler, \texttt{dqm4hep::Event}, wrapping a user-defined event class.
 This handler is particularly useful because it allows to transport the user-defined event through an application
 workflow without making any assumption on the underlying implementation:
 
@@ -177,9 +178,9 @@ dqm4hep::EventPtr createEvent() {
 
 \paragraph{Event streaming}
 
-To send or receive events from the network, events have to be converted from or to a format that the transport system can handle (e.g binary). 
+To send (receive) events to (from) the network, events have to be converted from or to a format that the transport system can handle (e.g binary). 
 As the event is user-defined, the event streaming also has to be user-defined. 
-The framework defines a base class \texttt{dqm4hep::EventStreamerPlugin} to stream in and out event that users have to implement:
+The framework defines a base class \texttt{dqm4hep::EventStreamerPlugin} to stream in and out events that users have to implement:
 
 \begin{lstlisting}{language=C++}
 class EventStreamerPlugin {
@@ -193,7 +194,7 @@ public:
 };
 \end{lstlisting}
 
-The user implementation can be declared as a plugin and loaded at runtime by the \texttt{dqm4hep::PluginManager}. 
+The streamer implementation can be declared as a plugin and loaded at runtime using the \texttt{dqm4hep::PluginManager}. 
 The combination of \texttt{dqm4hep::PluginManager}, \texttt{dqm4hep::Event} and \texttt{dqm4hep::EventStreamerPlugin} gives the 
 fully required flexibility for such a framework. 
 
@@ -209,7 +210,7 @@ fully required flexibility for such a framework.
 
 The concept of \textit{monitor element} is central in data quality monitoring software.
 A monitor element encapsulate a summary of the data being monitored by the framework.
-The most commonly used monitor element kind in HEP is histogram, but it can also be a scalar value, a time stamped graph 
+The most commonly used monitor element kinds in HEP are histogram, but it can also be a scalar value (counters), a time stamped graph 
 (slow control), a 2D histograms (hit maps), etc. 
 
 \paragraph{Quality test and report}
@@ -217,14 +218,14 @@ The most commonly used monitor element kind in HEP is histogram, but it can also
 Whereas the monitor element provides a summary of a data set, the \textit{quality test} implements the logic of testing 
 an element or evaluating its quality. These tests are also designed to detect problems as some observables (mean of 
 distribution, counters, etc ...) may deviate from expectations during or after data taking. \autoref{fig:QTestsAndQReports} 
-shows the workflow of monitor element 
+shows the workflow of monitor elements 
 
 } % bracket needed for wrapfigure for this paper ...
 % infortunately have to do the job of wrapfigure here ...
 \noindent testing in offline mode. Monitor elements are stored in ROOT files as well as potential 
 references provided by experts. 
 The quality tests and the monitor elements to test are described in XML format and passed to 
-a program for processing. A quality test report containing quality test status (success, warning, error), quality estimate 
+a program for processing. A \textit{quality test report}, containing quality test status (success, warning, failure), quality estimate 
 (in range [0;1]) and additional custom user data, is output in JSON format.
 
 \subsection{The online system}
