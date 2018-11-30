@@ -239,8 +239,6 @@ Once the collectors have received their payload, either from the DAQ or the anal
 \end{itemize}
 
 These collectors are internally defined by the framework and can't be redefined by the user as there is no need for it. 
-% \textcolor{red}{\textbf{Talk about the queries/subscription?}}
-
 
 \paragraph{Modules}\label{par:Modules}
 Two major data flavor are needed when running an experiments, the physics data from the detector itself and the data from the slow control system.
@@ -262,36 +260,12 @@ To ease the use of the framework, several Graphical User Interfaces (GUI) were i
 
 \paragraph{Job control}\label{par:JobControl}
 
-The framework needs multiple applications (jobs) to run at the same time (Analysis modules, run control server, collectors, etc.), sometimes over different host for load balancing purposes. For practical reasons it is important to be able to easily control and monitor these processes from a central point. This is achieved through the use of \textit{Job control servers} that run as daemons on every host taking part in the deployment. Once running they wait for remote client interfaces, called \textit{Job control interfaces}, to connect and manage the local processes. A GUI, as seen in \autoref{fig:JobControlGUI}, can then be used as a central point to monitor and control all the jobs across all the hosts. When using this interface, all the jobs needing to run need to be defined and configured (process name, host, options, etc.) through a JSON \textcolor{red}{\textbf{ref needed?}} configuration file. To simplify this configuration process, a JSON parser is implemented in the framework which provides the ability to add comments and variable expansion as can be seen in~\autoref{lst:jsonConfig}.
-
-\begin{lstlisting}[label={lst:jsonConfig}, language=json]
-{
-  "VARS" :{ // Define some global vars
-      "DNS_NODE" : "Host1"
-  },
-  "HOSTS":{ 
-    "Host1":[ // List of processes to run on the host
-      { 
-        "NAME": "MyFirstApp",
-        "ARGS": [ "--dns-host": "${DNS_NODE}"] // Reuse variable
-      }
-    ]
-  }
-}
-\end{lstlisting}
-\textcolor{red}{\textbf{If we keep this, make sure it appears on the same page}}
-
-\begin{figure}
-\centering
-\includegraphics[width=.95\textwidth]{figs/JobControlInterface.pdf}
-\caption{Job interface window. Applications are ordered by host and can be controlled (start, stop, restart) and monitored (status, logs, etc.) from within this interface.}
-\label{fig:JobControlGUI}
-\end{figure}
-
-
-\paragraph{Run control}\label{par:RunControl}
-
-For an offline or standalone deployment, i.e. no coupling with a DAQ system, a GUI can be used to control (start, stop, configure) and monitor (status, log) the run-control state . \textcolor{red}{\textbf{Add a description of the run management if not done before.}} 
+The framework needs multiple applications (jobs) to run at the same time (collectors, modules, run control server, etc.), sometimes over different host for load balancing purposes.
+For practical reasons it is important to be able to easily control and monitor these processes from a central point.
+This is achieved through the use of \textit{Job control servers} that run as daemons on every host taking part in the deployment.
+They wait for remote client interfaces, called \textit{Job control interfaces}, to connect and manage the local processes.
+A GUI, can then be used as a central point to monitor and control all the jobs across all the hosts.
+When using this interface, all the jobs needing to run have to be defined and configured (process name, host, options, etc.) through a JSON configuration file. To simplify this configuration process, a JSON parser is implemented which extends the default JSON functionalities by adding comments and variable expansion for example.
 
 \paragraph{Main Monitoring Window}\label{par:MainGUI}
 
