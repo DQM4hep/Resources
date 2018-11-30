@@ -15,6 +15,7 @@
 \usepackage{listings}
 \usepackage{xcolor}
 \usepackage[colorlinks]{hyperref}
+
 \lstdefinelanguage{json}{
   string=[s]{"}{"},
   stringstyle=\color{blue},
@@ -91,7 +92,7 @@ software development for DQM4HEP and long term prospects.
 
 Online monitoring systems are crucial while taking experimental data. 
 The main tasks of these systems are to provide a quick overview of the detector and sub-detector status, and to evaluate the quality of these data. 
-More technically, the online framwork should provide the following ingredients:
+More technically, the online framework should provide the following ingredients:
 
 \begin{itemize}
   \item a DAQ link to access the detector data and the run control status,
@@ -119,25 +120,23 @@ The plugin is used as a factory to create instances of the user class on demand.
 Such a system allows for building a framework with which the behavior of the key components can be changed at runtime. 
 
 In order to have a really generic monitoring system, the software should not depend on any EDM or data format. 
-This allows to have a higly-reusable software for different experiments. 
+This allows to have a highly-reusable software for different experiments. 
 By construction, in DQM4hep, the data type is user defined and wrapped in a higher level structure (\texttt{dqm4hep::Event}). 
 As the data has to be transported over network, the data streaming, as well as file reading and writing facility, have to be user-defined.
-The user-streaming interface can be encapsulated in a plugin that the framework can use in online application to serialize (de-serialize) 
-data before sending (after receiving) to (from) an endpoint.
+The user-streaming interface can be encapsulated in a plugin that the framework can use in online application to serialize (de-serialize) data before sending (after receiving) to (from) an endpoint.
 
 An important requirement for the online component of the monitoring system is to be distributed. 
 A typical user analysis handles hundred or many hundreds of histograms that are filled whenever data are received from the DAQ system. 
 The analysis program in this case is particularly \textit{greedy} in terms of memory. 
-Analysing data in a single process is thus very limited and must be distributed over different process or computers depending on 
-the available resources on each machine. This also increase the speedup of analysis as the resources are shared and allows for 
-more data to be processed in the same amount of time. The online analysis application has to be carefully designed in terms of 
-memory management as it may run for many hours and must stay stable.
+Analyzing data in a single process is thus very limited and must be distributed over different process or computers depending on the available resources on each machine.
+This also increase the speedup of analysis as the resources are shared and allows for more data to be processed in the same amount of time.
+The online analysis application has to be carefully designed in terms of memory management as it may run for many hours and must stay stable.
 
-To receive data from the DAQ system, data must be forwared to the monitoring system for analysis.
-The mechanism may be of many forms: shared-memory (if running on same computers), network (TCP/IP), database, etc...
-An important requirement of a DQM system is to avoid slowing the acquisition or either crash the acquisition process.
-%do not impact on the performance of the data acquisition itself to perform a 
-%monitoring task. By performance here we mean slowing down the acquisition or either crash the acquisition process.
+To receive data from the DAQ system, data must be forwarded to the monitoring system for analysis.
+The mechanism may be of many forms: shared-memory (if running on same computers), network (TCP/IP), database, etc.
+An important requirement of a DQM system is to avoid slowing or crash the acquisition process.
+A global overview of the framework's architecture is shown in~\autoref{fig:GlobalArchitectureDiagram}.
+
 
 \subsection{The core components}
 \label{subsec:core}
@@ -188,20 +187,18 @@ public:
 \end{lstlisting}
 
 The user implementation can be declared as a plugin and loaded at runtime by the \texttt{dqm4hep::PluginManager}. 
-The combinaison of \texttt{dqm4hep::PluginManager}, \texttt{dqm4hep::Event} and \texttt{dqm4hep::EventStreamerPlugin} gives the 
+The combination of \texttt{dqm4hep::PluginManager}, \texttt{dqm4hep::Event} and \texttt{dqm4hep::EventStreamerPlugin} gives the 
 fully required flexibility for such a framework. 
 
 \paragraph{Monitor elements}
 
 The concept of \textit{monitor element} is central in data quality monitoring software.
-A monitor element encasulate a summary of the data being monitored by the framework.
-The most commonly used monitor element kind in HEP is histogram, but can also be a scalar value, 
-time stamped graph (slow control), 2D histograms (hit maps), etc ...
+A monitor element encapsulate a summary of the data being monitored by the framework.
+The most commonly used monitor element kind in HEP is histogram, but it can also be a scalar value, a time stamped graph (slow control), a 2D histograms (hit maps), etc. 
 
 \paragraph{Quality test and report}
 
-Whereas the monitor element provides a summary of a data set, the \textit{quality test} implement the logic of testing an
-element or evaluating its quality. These tests are also designed to detect problems as some distribution .......
+Whereas the monitor element provides a summary of a data set, the \textit{quality test} implements the logic of testing an element or evaluating its quality. These tests are also designed to detect problems as some distribution .......
 
 
 \begin{itemize}
@@ -218,13 +215,13 @@ element or evaluating its quality. These tests are also designed to detect probl
 The main purpose of a data quality monitoring system is the visualization and quality assessment of detectors data in a real time environment.
 
 \paragraph{Collectors}\label{par:Collectors}
-The first stage in this chain is to get the data from the DAQ system to the analyses modules.
+The first stage in this process is to get the data from the DAQ system to the analyses modules.
 This is done by building and wrapping user-defined event from the DAQ data as DQM4hep events before streaming them to the analyses modules.
 Since there might be an indefinite number of modules running on multiple hosts, there is a need for a central access and distribution point of this data. This is the role of the collectors, of which two types are defined:
 
 \begin{itemize}
-  \item The \texttt{Event collectors}, which collect \texttt{DQM4hep Event} from the event builder and distribute them to analyses modules.  
-  \item The \texttt{Monitor Element collectors}, which collect the product of the analyses, called \texttt{Monitor Elements (ME)}, and distribute them to visualization interfaces.
+  \item The \texttt{Event collector}, which collects \texttt{DQM4hep Event} from the event builder and distributes them to the analyses modules. 
+  \item The \texttt{Monitor Element collector}, which collects the products of these analyses, the \texttt{Monitor Elements}, and distributes them to the visualization interfaces.
 \end{itemize}
 These collectors are defined by the framework and can't be redefined by the user as there is no need for it. 
 \textcolor{red}{\textbf{Talk about the queries/subscription?}}
