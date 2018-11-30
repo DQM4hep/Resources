@@ -128,7 +128,7 @@ The user-streaming interface can be encapsulated in a plugin that the framework 
   \centering
   \includegraphics[width=.95\textwidth]{figs/AnalysisModuleArchitecture.pdf}
   \caption{Global architecture of the DQM4hep framework. The top left corner corresponds to the DAQ system and is not part 
-  of the framework, it is displayed here to show the link between the two systems.\textcolor{red}{\textbf{Add some more description?}}}
+  of the framework, it is displayed here to show the link between the two systems.}
   \label{fig:GlobalArchitectureDiagram}
 \end{figure}
 
@@ -235,34 +235,39 @@ Since there might be an indefinite number of modules running on multiple hosts, 
   \item The \textit{monitor element collector}, which collects the products of these analyses, the \textit{monitor elements}, and distributes them to the visualization interfaces.
 \end{itemize}
 
-\textcolor{red}{\textbf{The next paragraph is not really useful in the end. I am also now wondering why we needs the client to be able to run in query mode, isn't update mode always beneficial? In the end the update is just a query from the rolling queue vs the collector, Wouldn't it be better to have the queue implemented in the collector vs the client?}} \\
-\textcolor{red}{\textbf{Remi: I think we can remove it. About the mode: we need both because the shifter might not want to see the viz updated all the time but only on query.}}\\
-Once the collectors have received their payload, either from the DAQ or the analyses modules, they can redistribute it in two fashion depending on how the receiving client is running. The client can be either:
+% \textcolor{red}{\textbf{The next paragraph is not really useful in the end. I am also now wondering why we needs the client to be able to run in query mode, isn't update mode always beneficial? In the end the update is just a query from the rolling queue vs the collector, Wouldn't it be better to have the queue implemented in the collector vs the client?}} \\
+% \textcolor{red}{\textbf{Remi: I think we can remove it. About the mode: we need both because the shifter might not want to see the viz updated all the time but only on query.}}\\
+% Once the collectors have received their payload, either from the DAQ or the analyses modules, they can redistribute it in two fashion depending on how the receiving client is running. The client can be either:
+% 
+% \begin{itemize}
+%   \item Querying the data, in which case the collector sends its payload to the client. If more than one element is collected between queries, only the last one will be sent to the client.
+%   \item Subscribed to the collector. In this case, the collector does not wait for a query and sends the payload to a rolling queue in the client. The client can then acquire elements in the queue whenever it is ready to process new data.  
+% \end{itemize}
 
-\begin{itemize}
-  \item Querying the data, in which case the collector sends its payload to the client. If more than one element is collected between queries, only the last one will be sent to the client.
-  \item Subscribed to the collector. In this case, the collector does not wait for a query and sends the payload to a rolling queue in the client. The client can then acquire elements in the queue whenever it is ready to process new data.  
-\end{itemize}
-
-These collectors are internally defined by the framework and can't be redefined by the user as there is no need for it. 
+% These collectors are internally defined by the framework and can't be redefined by the user as there is no need for it. 
 
 \paragraph{Modules}\label{par:Modules}
 Two major data flavors are needed when running an experiments, the physics data from the detector itself and the data from the 
 slow control system. To cope with these two possible kind of input, two types of modules are defined within the framework, the 
 analysis module and the standalone module respectively. They are both user defined plugins that can be started or stopped at any 
 point while the framework is running. Their goal is to reduce the initial amount of data to a few useful elements, the 
-\texttt{Monitor Elements}. Quality of the output data can also be assessed and its result stored within the element, with the data.
+\textit{monitor elements}. Quality of the output data can also be assessed using quality tests and resulting quality test reports 
+stored within the element and send along to the \textit{monitor element collectors}.
 
-Where analyses modules use DQM4hep event streamed by the \texttt{Event collectors} as input, the standalone module 
-used data from external sources(pressure sensors, detector high voltages, etc.).
-These external sources, and thus the modules, run independently from the DAQ system hence the naming convention. 
-A standalone module can include some analysis but is most of the time just used to process the raw external data for visualization and data quality assessment. 
-Both module types can be run independently in online or offline mode. In this context, offline means there is no detector system running, and no operator is waiting for the data to be displayed continuously. There is thus no incentive to process and display the data in real time: the data is read and stored from and to disk, and no run management is needed. This mode is especially useful for simulation quality assessment and new analyses testing. 
+Whereas analyses modules use DQM4hep event streamed by the \texttt{event collectors} as input, the standalone module 
+used data from external sources (pressure sensors, detector high voltages, etc...).
+These external sources, and thus the modules, run independently from the DAQ system. A standalone module can include 
+some analysis but is most of the time just used to process the raw external data for visualization and data quality assessment.
+Both module types can be run independently in online or offline mode \textcolor{red}{Running a slow control module offline ??}. 
+In this context, offline means there is no detector system running, and no operator is waiting for the data to be displayed 
+continuously. There is thus no incentive to process and display the data in real time: the data is read and stored from and 
+to disk, and no run management is needed. This mode is especially useful for quality assessment of simulation data and new analyses testing. 
 
 \subsection{The online visualization}
 \label{subsec:vis}
 
-To ease the use of the framework, several Graphical User Interfaces (GUI) were implemented. For now only QT~\cite{QT} based interfaces are fully functional and available for end-users. 
+To ease the use of the framework, several Graphical User Interfaces (GUI) were implemented. 
+For now only QT~\cite{QT} based interfaces are fully functional and available for end-users. 
 
 \paragraph{Job control}\label{par:JobControl}
 
