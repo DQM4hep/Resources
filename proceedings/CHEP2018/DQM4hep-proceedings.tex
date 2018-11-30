@@ -216,7 +216,7 @@ These tests are also designed to detect problems as some observables (mean of di
 } % bracket needed for wrapfigure for this paper ...
 % infortunately have to do the job of wrapfigure here ...
 \noindent testing in offline mode.
-Monitor elements are stored in \texttt{ROOT}~\cite{ROOT} files with potential reference objects provided by experts.
+Monitor elements are stored as \texttt{ROOT}~\cite{ROOT} objects with potential reference entities provided by experts.
 Monitor elements can thus be compared to the references as part of a quality test or at a later stage by an operator. 
 The quality tests and the monitor elements to test are described in XML format and passed to a program for processing.
 A \textit{quality test report}, containing quality test status (success, warning, failure), quality estimate (in the range [0;1]) and additional custom user data, is output in JSON format.
@@ -226,7 +226,7 @@ A \textit{quality test report}, containing quality test status (success, warning
 The main purpose of a data quality monitoring system is the visualization and quality assessment of detectors data in a real-time environment.
 
 \paragraph{Collectors}\label{par:Collectors}
-The first stage in this process \textcolor{red}{(which process ?)} is to transport the data from the DAQ system to the analyses modules.
+The first stage in achieving this objective is the transmission of the data from the DAQ system to the analyses modules.
 This is done by building and wrapping user-defined event from the DAQ data as DQM4hep events before streaming them to the analyses modules.
 Since there might be an indefinite number of modules running on multiple hosts, there is a need for a central access and distribution point of this data. This is the role of the collectors, of which two types are defined:
 
@@ -235,63 +235,52 @@ Since there might be an indefinite number of modules running on multiple hosts, 
   \item The \textit{monitor element collector}, which collects the products of these analyses, the \textit{monitor elements}, and distributes them to the visualization interfaces.
 \end{itemize}
 
-% \textcolor{red}{\textbf{The next paragraph is not really useful in the end. I am also now wondering why we needs the client to be able to run in query mode, isn't update mode always beneficial? In the end the update is just a query from the rolling queue vs the collector, Wouldn't it be better to have the queue implemented in the collector vs the client?}} \\
-% \textcolor{red}{\textbf{Remi: I think we can remove it. About the mode: we need both because the shifter might not want to see the viz updated all the time but only on query.}}\\
-% Once the collectors have received their payload, either from the DAQ or the analyses modules, they can redistribute it in two fashion depending on how the receiving client is running. The client can be either:
-% 
-% \begin{itemize}
-%   \item Querying the data, in which case the collector sends its payload to the client. If more than one element is collected between queries, only the last one will be sent to the client.
-%   \item Subscribed to the collector. In this case, the collector does not wait for a query and sends the payload to a rolling queue in the client. The client can then acquire elements in the queue whenever it is ready to process new data.  
-% \end{itemize}
-
-% These collectors are internally defined by the framework and can't be redefined by the user as there is no need for it. 
-
 \paragraph{Modules}\label{par:Modules}
-Two major data flavors are needed when running an experiments, the physics data from the detector itself and the data from the 
-slow control system. To cope with these two possible kind of input, two types of modules are defined within the framework, the 
-analysis module and the standalone module respectively. They are both user defined plugins that can be started or stopped at any 
-point while the framework is running. Their goal is to reduce the initial amount of data to a few useful elements, the 
-\textit{monitor elements}. Quality of the output data can also be assessed using quality tests and resulting quality test reports 
-stored within the element and send along to the \textit{monitor element collectors}.
+Two major data flavors are needed when running an experiment, the physics data from the detector itself and the data from the slow control systems.
+To cope with these two possible kinds of input, two types of modules are defined within the framework: the analysis module and the standalone module.
+They are both user-defined plugins that can be started or stopped at any point while the framework is running.
+Their goal is to reduce the initial amount of data to a few useful elements, the \textit{monitor elements}.
+Quality tests can assess the output data and resulting quality test reports stored within the \textit{monitor element} and sent along to the \textit{monitor element collectors}.
 
-Whereas analyses modules use DQM4hep event streamed by the \texttt{event collectors} as input, the standalone module 
-used data from external sources (pressure sensors, detector high voltages, etc...).
-These external sources, and thus the modules, run independently from the DAQ system. A standalone module can include 
-some analysis but is most of the time just used to process the raw external data for visualization and data quality assessment.
-Both module types can be run independently in online or offline mode \textcolor{red}{Running a slow control module offline ??}. 
-In this context, offline means there is no detector system running, and no operator is waiting for the data to be displayed 
-continuously. There is thus no incentive to process and display the data in real time: the data is read and stored from and 
-to disk, and no run management is needed. This mode is especially useful for quality assessment of simulation data and new analyses testing. 
+Where analyses modules use DQM4hep event streamed by the \texttt{event collectors} as input, the standalone modules use data from external sources (pressure sensors, detector high voltages, etc.).
+These external sources, and thus the modules, operate independently of the DAQ system.
+A standalone module can include some analysis but is most of the time just used to process the raw external data for visualization and data quality assessment.
+Analyses modules can be run independently in online or offline mode.
+In this context, offline means there is no detector system running, and no operator is waiting for the data to be displayed continuously.
+There is thus no incentive to process and display the data in real time: the data is read and stored from and to disk, and no run management is needed.
+This mode is especially useful for quality assessment of simulation data and new analyses testing. 
 
 \subsection{The online visualization}
 \label{subsec:vis}
 
 To ease the use of the framework, several Graphical User Interfaces (GUI) were implemented. 
-For now only QT~\cite{QT} based interfaces are fully functional and available for end-users. 
+For now, only QT~\cite{QT} based interfaces are fully functional and available for end-users. 
 
 \paragraph{Job control}\label{par:JobControl}
 
 The framework needs multiple applications (jobs) to run at the same time (collectors, modules, run control server, etc.), sometimes over different host for load balancing purposes.
-For practical reasons it is important to be able to easily control and monitor these processes from a central point.
+For practical reasons, it is important to easily control and monitor these processes from a central point.
 This is achieved through the use of \textit{Job control servers} that run as daemons on every host taking part in the deployment.
 They wait for remote client interfaces, called \textit{Job control interfaces}, to connect and manage the local processes.
-A GUI, can then be used as a central point to monitor and control all the jobs across all the hosts.
-When using this interface, all the jobs needing to run have to be defined and configured (process name, host, options, etc.) through a JSON configuration file. To simplify this configuration process, a JSON parser is implemented which extends the default JSON functionalities by adding comments and variable expansion for example.
+A GUI, the \textit{job control interface}, is used as a central point to monitor and control all the jobs across all the hosts.
+When using this interface, all the jobs needing to run have to be defined and configured (process name, host, options, etc.) through a JSON configuration file.
+To simplify this configuration process, the framework implements a JSON parser which extends the default JSON functionalities such as comments and variable expansion.
 
 \paragraph{Main Monitoring Window}\label{par:MainGUI}
 
 Most users will predominantly use only this interface as its function is to display the end results of the analyses and quickly give an overview of the quality of the data being taken.
 A general view of this interface can be seen in~\autoref{fig:DQMMainViz}.
 The first step in using this interface consists to browse the available \texttt{Monitor Element Collectors} and select the \texttt{Monitor Elements} of interests.
-This is done through the browse window which provides various search function (by ME name, module, etc.) to help construct this selection.
-A tree like structure, with folder and sub-folders, is then available on the left side of the main interface to navigate previously selected ME.
+This is done through the \textit{browse} window which provides various search function (by ME name, module, etc.) to help construct this selection.
+A tree-like structure, with folders and sub-folders, is then available on the left side of the main interface to navigate previously selected ME.
 Apart from the top-level folders, which are named after the analysis module the ME belongs to, the organization of this structure is user-defined within each module. 
-The user can then select which \texttt{ME} to display in the drawing area. Once displayed, they can be rearranged at will within the drawing area and multiple tabs can be opened to show different subset of interesting \texttt{ME}. 
+The user can then select which \texttt{ME} to display in the drawing area.
+Once displayed, they can be rearranged at will within the drawing area and multiple tabs can be opened to show different subsets of interesting \texttt{ME}.
 The window background (\textcolor{red}{\textbf{Or is it only the small icon on the top left corner?}}) of each \texttt{ME} is colored depending on the results of its selected quality test for a quick visual assessment of its quality from the user.
 Multiple tests can be assigned to each \texttt{ME} and their details and report can be accessed via a context menu. \textcolor{red}{\textbf{What happens to the icon color when multiple tests are defined? I suppose only one of them is used?}}
-As mentioned before (\textcolor{red}{\textbf{Make sure it is actually mentioned, add a ref to the paragraph?}}) each \texttt{ME} is a valid ROOT object and can therefore use all of the functionalities offered by ROOT (fitting, re-scaling, etc.).
-This proves particularly useful during data taking to quickly glance and analyse a specific subset of data. 
-Multiple instances of this interface can be opened on any host, provided they are on the same network, and connect to the available \texttt{Monitor Element Collectors}. 
+As mentioned before each \texttt{ME} is a valid ROOT object and can, therefore, use all the functionalities ROOT offers (fitting, re-scaling, etc.).
+This proves particularly useful during data taking to quickly glance and analyze a specific subset of data. 
+Multiple instances of this interface can be opened on any host, provided they are on the same network and connect to the available \textit{Monitor Element Collectors}. 
 
 \begin{figure}
   \centering
@@ -306,7 +295,7 @@ Multiple instances of this interface can be opened on any host, provided they ar
 \end{figure}
 
 \paragraph{Web Interface}\label{par:WebGUI}
-A web based interface regrouping all the GUI mentioned has also been developed. As of this writing, it is still missing some key links to the back-end to be fully operational for the end-users. The main advantage of such interface is the portability as the only prerequisite is a recent internet browser.
+A web-based interface regrouping all the GUI mentioned has also been developed. As of this writing, it is still missing some key links to the back-end to be fully operational for the end-users. The main advantage of such interface is the portability as the only prerequisite is a recent internet browser.
 
 \section{Detectors using DQM4hep}
 \label{sec:detectors}
