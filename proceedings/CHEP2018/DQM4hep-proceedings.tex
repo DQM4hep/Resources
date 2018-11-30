@@ -137,6 +137,12 @@ The mechanism may be of many forms: shared-memory (if running on same computers)
 An important requirement of a DQM system is to avoid slowing or crash the acquisition process.
 A global overview of the framework's architecture is shown in~\autoref{fig:GlobalArchitectureDiagram}.
 
+\begin{figure}
+  \centering
+  \includegraphics[width=.95\textwidth]{figs/AnalysisModuleArchitecture.pdf}
+  \caption{Global architecture of the DQM4hep framework. The top left corner corresponds to the DAQ system and is not part of the framework, it is displayed here to show the link between the two systems. \textcolor{red}{\textbf{Add some details on the figure}}Once the link to the DAQ has been implemented (most probably by a DAQ engineer), physicists only have to implement their analyses to }
+  \label{fig:GlobalArchitectureDiagram}
+\end{figure}
 
 \subsection{The core components}
 \label{subsec:core}
