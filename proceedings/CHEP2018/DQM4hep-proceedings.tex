@@ -121,14 +121,14 @@ Such a system allows for building a framework with which the behavior of the key
 In order to have a really generic monitoring system, the software should not depend on any event data model or data format.
 This allows having highly-reusable software for different experiments.
 By construction, in DQM4hep, the data type is user-defined and wrapped in a higher level handler (\texttt{dqm4hep::Event}).
-As the data has to be transported over the network, the data streaming, file reading and writing facilities, have to be user-defined.
+As the data has to be transported over the network, the data streaming, file reading, and writing facilities have to be user-defined.
 The user-streaming interface can be encapsulated in a plugin that the framework can use in online applications to serialize (de-serialize) data before sending (after receiving) to (from) an endpoint.
 
 An important requirement for the online component of the monitoring system is to be distributed.
 A typical user analysis handles tens or hundreds of histograms that are filled whenever data are received from the DAQ system.
 The analysis program, in this case, is particularly \textit{greedy} in terms of memory.
 Analyzing data in a single process is thus very limited and must be distributed over different processes or computers depending on the available resources on each machine.
-This also increases the speedup of analysis as the resources are shared and allows for more data to be processed in the same amount of time.
+Since the resources are shared, this also increases the speedup of analysis and allows for more data to be processed in the same amount of time.
 The online analyses applications still have to be carefully designed in terms of memory management as they may run for many hours and must stay stable.
 
 Before analyzing them, data needs to be forwarded from the DAQ system to the monitoring system.
@@ -147,12 +147,12 @@ by calling \texttt{dqm4hep::Plugin::create()}.
 
 \paragraph{The event data model}
 
-The core component of DQM4hep defines a high level handler, \texttt{dqm4hep::Event}, wrapping a user-defined event class.
-This handler is particularly useful because it allows to transport the user-defined event through an application
+The core component of DQM4hep defines a high-level handler, \texttt{dqm4hep::Event}, wrapping a user-defined event class.
+This handler is particularly useful because it allows transporting the user-defined event through an application
 workflow without making any assumption on the underlying implementation:
 
 \begin{lstlisting}{language=C++}
-// a user defined function
+// a user-defined function
 dqm4hep::EventPtr createEvent() {
   // a DQM4hep event ...
   dqm4hep::EventPtr event = dqm4hep::Event::create<MyEvent>();
@@ -245,9 +245,8 @@ A visual representation of the DQM4hep online architecture is shown in~\autoref{
 
 \begin{figure}
   \centering
-  \includegraphics[width=.95\textwidth]{figs/AnalysisModuleArchitecture.pdf}
-  \caption{Online architecture of the DQM4hep framework. The top left corner corresponds to the DAQ system and is not part
-  of the framework, it is displayed here to show the link between the two systems.}
+  \includegraphics[width=\textwidth]{figs/AnalysisModuleArchitecture.pdf}
+  \caption{Online architecture of the DQM4hep framework. Data flow is indicated by the arrows. Physicists only have to dedicate time on the data analyses. The top left corner corresponds to the DAQ system and is not part of the framework, it is displayed here to show the link between the two systems.}
   \label{fig:GlobalArchitectureDiagram}
 \end{figure}
 
@@ -286,12 +285,12 @@ Multiple instances of this interface can be opened on any host, provided they ar
 
 \begin{figure}
   \centering
-  \includegraphics[width=.95\textwidth]{figs/MaintInterfaceGUI.pdf}
+  \includegraphics[width=\textwidth]{figs/MaintInterfaceGUI.pdf}
     \caption{\label{fig:DQMMainViz} Main window of the monitoring GUI.
-    1: Option for manual/auto update.
-    2: \texttt{Monitor Elements} (\texttt{ME}) organized in a tree-like structure
-    3: Open Browse window to create \texttt{ME} selection available in 2.
-    4: Drawing section for \texttt{ME}, can be organized in multiple tabs.
+    1: Option for manual/auto update of the visualization.
+    2: Selected \texttt{Monitor Elements} (\texttt{ME}) organized in a tree-like structure
+    3: Open a \textit{Browse} window to create the \texttt{ME} selection available in 2.
+    4: Drawing section for \texttt{MEs}, it can be organized in multiple tabs.
     5: Drawn \texttt{ME} are valid ROOT object that can be manipulated (zoom, scale change, fit, etc.)
     }
 \end{figure}
@@ -307,9 +306,9 @@ As such, a dedicated implementation, based on the LCIO~\cite{LCIO} Event Data Mo
 For the past three years and five test beam campaigns, the SDHCAL prototype successfully used this tool as their online data quality monitoring (DQM) system.
 Since then, other experiments from the CALICE collaboration adopted the framework for their DQM needs. It has also been deployed for a combination of two separate detectors using different data acquisition systems, demonstrating the reusability and scalability of the system.
 
-New experiments from other collaborations such as the DREAM calorimeter from RD52 have shown their interest and started integrated this solution.
+New experiments from other collaborations such as the DREAM calorimeter from RD52 have shown their interest and started integrating this solution.
 Work on coupling with the generic data acquisition framework EUDAQ~\cite{EUDAQ} have also started.
-Such integration would provide powerful, almost off-the-shelf, sets of tools for experiments to acquire and assess quality of their data.  
+Such integration would provide powerful, almost off-the-shelf, sets of tools for experiments to acquire and assess the quality of their data.
 
 \section{Conclusion}
 \label{sec:conclusion}
