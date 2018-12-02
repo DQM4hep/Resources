@@ -309,9 +309,13 @@ Since then, most experiments from the CALICE collaboration also adopted the fram
 \section{Conclusion}
 \label{sec:conclusion}
 
-A new generic framework for data quality monitoring for high energy phisics, DQM4hep, has been developed without any assumption on the underlying event data model implementation or data format. It provides tools to develop and deploy an experiment monitoring system during data taking or for monitoring offline data, either from simulation or from recorded data from detector on disk. Visualization interfaces have been developed with Qt4~\cite{QT} libraries for steering the online deployment and displaying the monitor elements collected during data taking.
-
-Different detector prototypes have been using this framework for several test beam campaigns to monitor their data taking. For some of these campaigns, the data acquisition was performed with multiple sub-detectors, demonstrating the scalability of the framework.
+A new generic framework for data quality monitoring for high energy physics, DQM4hep, has been developed without any assumption on the underlying event data model implementation or data format.
+It provides tools to develop data analyses and quality assessment of any experiment data.
+The system can be deployed for both online and offline setups.
+In this context, online deployment means real time data taking, whereas offline deployment can be simulation or pre-recorded data from detectors on disk. 
+Visualization interfaces have been developed with Qt4 libraries for steering the online deployment and displaying the monitor elements collected during data taking.
+The framework has now been used in real world condition by several detector prototypes across multiple test beam campaigns for their monitoring needs.
+For some of these campaigns, the data acquisition was performed with multiple sub-detectors, and the framework deployed across several computers, demonstrating the scalability of the software.
 
 
 % BibTeX or Biber users please use (the style is already called in the class, ensure that the "woc.bst" style is in your local directory)
