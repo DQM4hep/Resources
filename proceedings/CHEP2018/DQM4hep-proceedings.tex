@@ -301,20 +301,22 @@ A web-based interface regrouping all the GUI mentioned has also been developed. 
 \label{sec:detectors}
 
 The work on this framework was started within the CALICE~\footnote{CAlorimeter for LInear Collider Experiment}-Semi Digital Hadronic CALorimeter (SDHCAL) collaboration.
-As such, a dedicated implementation, based on the LCIO~\cite{LCIO} Event Data Model, was produced to demonstrate the capabilities of the framework.
+As such, a dedicated implementation, based on the LCIO~\cite{LCIO} Event Data Model and including multiple analyses modules, was produced to demonstrate the capabilities of the framework. 
 For the past three years and five test beam campaigns, the SDHCAL prototype successfully used this tool as their online data quality monitoring (DQM) system.
 
-Since then, most experiments from the CALICE collaboration also adopted the framework for their DQM needs. It has also been used in combination between two detectors.
+Since then, other experiments from the CALICE collaboration adopted the framework for their DQM needs. It has also been deployed for a combination of two separate detectors using different data acquisition systems, demonstrating the reusability and scalability of the system.
+
 
 \section{Conclusion}
 \label{sec:conclusion}
 
 A new generic framework for data quality monitoring for high energy physics, DQM4hep, has been developed without any assumption on the underlying event data model implementation or data format.
-It provides tools to develop data analyses and quality assessment of any experiment data.
-The system can be deployed for both online and offline setups.
-In this context, online deployment means real time data taking, whereas offline deployment can be simulation or pre-recorded data from detectors on disk. 
+These core \textcolor{red}{\textbf{guidelines (find better phrasing)}} promote high degrees of portability and reusability across experiments.
+This software solution provides tools to develop data analyses and quality assessment of any experiments data.
+It can be deployed for both online (i.e real-time data taking) and offline (i.e simulation or pre-recorded data) setups.
+
 Visualization interfaces have been developed with Qt4 libraries for steering the online deployment and displaying the monitor elements collected during data taking.
-The framework has now been used in real world condition by several detector prototypes across multiple test beam campaigns for their monitoring needs.
+The framework has now been used in real-world condition by several detector prototypes across multiple test beam campaigns for their monitoring needs, \textcolor{red}{\textbf{showing the reusability of the solution. (meh)}}
 For some of these campaigns, the data acquisition was performed with multiple sub-detectors, and the framework deployed across several computers, demonstrating the scalability of the software.
 
 
