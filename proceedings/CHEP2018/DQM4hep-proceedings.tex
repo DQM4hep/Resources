@@ -77,11 +77,11 @@ Ghent University, Department of Physics and Astronomy Proeftuinstraat 86, B-9000
 \abstract{%
 Data quality monitoring is the first step in the certification of data recorded for offline physics analyses.
 Many experiments have developed their own dedicated monitoring system in the past.
-Most of them rely on their own event data model (EDM), which leads to a strong dependency on the data format and storage.
+Most of them rely on their own event data model, which leads to a strong dependency on the data format and storage.
 We present here a generic data quality monitoring system, DQM4hep, that has been developed without any assumptions on the underlying event data model.
 This reduces the code maintenance and increases the portability and reusability across other experiments.
 We first introduce the framework architecture and the various core components as well as tools provided by the software package.
-We give an overview of the different experiments using DQM4hep and the foreseen integration in future other experiments.
+We then give an overview of the different experiments using DQM4hep and the foreseen integration in future other experiments.
 We finally present the ongoing and future software development for DQM4Hhep and long-term prospects.
 }
 %
@@ -91,7 +91,7 @@ We finally present the ongoing and future software development for DQM4Hhep and 
 \label{sec:intro}
 
 Online data quality monitoring systems are crucial while taking experimental data.
-The main tasks of such tools are to provide a quick overview of the detector and sub-detector status and to evaluate the quality of these data.
+The main tasks of such tools are to provide a quick overview of the detector and sub-detector status and to evaluate the quality of their data in real-time.
 More technically, the online framework should provide the following ingredients:
 
 \begin{itemize}
@@ -101,7 +101,7 @@ More technically, the online framework should provide the following ingredients:
 \end{itemize}
 
 Such systems are generally (but not always) decoupled from the data quality monitoring done offline on recorded data or simulated data.
-Often, the architecture of these software relies on the event data model (EDM) of the underlying experiment. This can be seen as a limitation, as the software becomes non-reusable by other experiments.
+Often, the architecture of these software relies on the event data model of the underlying experiment. This can be seen as a limitation, as the software becomes non-reusable by other experiments.
 
 In this paper, we present a new generic framework for online and offline data quality monitoring called DQM4hep.
 After introducing the framework architecture and specifications, the different components of DQM4hep are described.
@@ -118,30 +118,21 @@ A plugin is a C++ class encapsulating a user class that is compiled in a shared 
 The plugin is used as a factory to create instances of the user class on demand.
 Such a system allows for building a framework with which the behavior of the key components can be changed at runtime.
 
-In order to have a really generic monitoring system, the software should not depend on any EDM or data format.
+In order to have a really generic monitoring system, the software should not depend on any event data model or data format.
 This allows having highly-reusable software for different experiments.
 By construction, in DQM4hep, the data type is user-defined and wrapped in a higher level handler (\texttt{dqm4hep::Event}).
 As the data has to be transported over the network, the data streaming, file reading and writing facilities, have to be user-defined.
 The user-streaming interface can be encapsulated in a plugin that the framework can use in online applications to serialize (de-serialize) data before sending (after receiving) to (from) an endpoint.
-
-\begin{figure}[!h]
-  \centering
-  \includegraphics[width=.95\textwidth]{figs/AnalysisModuleArchitecture.pdf}
-  \caption{Online architecture of the DQM4hep framework. The top left corner corresponds to the DAQ system and is not part
-  of the framework, it is displayed here to show the link between the two systems.}
-  \label{fig:GlobalArchitectureDiagram}
-\end{figure}
 
 An important requirement for the online component of the monitoring system is to be distributed.
 A typical user analysis handles tens or hundreds of histograms that are filled whenever data are received from the DAQ system.
 The analysis program, in this case, is particularly \textit{greedy} in terms of memory.
 Analyzing data in a single process is thus very limited and must be distributed over different processes or computers depending on the available resources on each machine.
 This also increases the speedup of analysis as the resources are shared and allows for more data to be processed in the same amount of time.
-The online analyses applications have to be carefully designed in terms of memory management as they may run for many hours and must stay stable.
+The online analyses applications still have to be carefully designed in terms of memory management as they may run for many hours and must stay stable.
 
 Before analyzing them, data needs to be forwarded from the DAQ system to the monitoring system.
-The mechanism may be of many forms: shared-memory (if running on same computers), network (TCP/IP), database, etc. but a major requirement is to avoid slowing or crashing the acquisition process.
-A global overview of the framework's online architecture is shown in~\autoref{fig:GlobalArchitectureDiagram}.
+This mechanism may be of many forms: shared-memory (if running on same computers), network (TCP/IP), database, etc. but a major requirement is to avoid slowing or crashing the acquisition process.
 
 \subsection{The core components}
 \label{subsec:core}
@@ -196,7 +187,7 @@ The combination of \texttt{dqm4hep::PluginManager}, \texttt{dqm4hep::Event} and 
 
 { % bracket needed for wrapfigure for this paper ...
 
-\begin{wrapfigure}{R}{0.5\textwidth}
+\begin{wrapfigure}{R}{0.42\textwidth}
     \includegraphics[width=\linewidth]{figs/QTestRunner.pdf}
     \caption{Offline quality test processing workflow: from monitor elements and references to quality test reports.}
     \label{fig:QTestsAndQReports}
@@ -211,11 +202,10 @@ One dimension histograms are the most commonly used monitor element types in HEP
 \paragraph{Quality test and report}
 
 Whereas the monitor element provides a summary of a data set, the \textit{quality test} implements the logic of testing an element or evaluating its quality.
-These tests are also designed to detect problems as some observables (mean of distributions, counters, etc.) may deviate from expectations during or after data taking. \autoref{fig:QTestsAndQReports} shows the workflow of monitor elements
+These tests are also designed to detect problems as some observables (mean of distributions, counters, etc.) may deviate from expectations during or after data taking. \autoref{fig:QTestsAndQReports} shows the workflow of monitor elements testing in offline mode.
 
 } % bracket needed for wrapfigure for this paper ...
 % infortunately have to do the job of wrapfigure here ...
-\noindent testing in offline mode.
 Monitor elements are stored as \texttt{ROOT}~\cite{ROOT} objects with potential reference entities provided by experts.
 Monitor elements can thus be compared to the references as part of a quality test or at a later stage by an operator.
 The quality tests and the monitor elements to test are described in XML format and passed to a program for processing.
@@ -250,6 +240,18 @@ In this context, offline means there is no detector system running, and no opera
 There is thus no incentive to process and display the data in real time: the data is read and stored from and to disk, and no run management is needed.
 This mode is especially useful for quality assessment of simulation data and new analyses testing.
 
+
+A visual representation of the DQM4hep online architecture is shown in~\autoref{fig:GlobalArchitectureDiagram}.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=.95\textwidth]{figs/AnalysisModuleArchitecture.pdf}
+  \caption{Online architecture of the DQM4hep framework. The top left corner corresponds to the DAQ system and is not part
+  of the framework, it is displayed here to show the link between the two systems.}
+  \label{fig:GlobalArchitectureDiagram}
+\end{figure}
+
+
 \subsection{The online visualization}
 \label{subsec:vis}
 
@@ -276,8 +278,8 @@ A tree-like structure, with folders and sub-folders, is then available on the le
 Apart from the top-level folders, which are named after the analysis module the ME belongs to, the organization of this structure is user-defined within each module.
 The user can then select which \texttt{ME} to display in the drawing area.
 Once displayed, they can be rearranged at will within the drawing area and multiple tabs can be opened to show different subsets of interesting \texttt{ME}.
-The window background (\textcolor{red}{\textbf{Or is it only the small icon on the top left corner?}}) of each \texttt{ME} is colored depending on the results of its selected quality test for a quick visual assessment of its quality from the user.
-Multiple tests can be assigned to each \texttt{ME} and their details and report can be accessed via a context menu. \textcolor{red}{\textbf{What happens to the icon color when multiple tests are defined? I suppose only one of them is used?}}
+The icon background of each \texttt{ME} is colored depending on the results of its selected quality test for a quick visual assessment of its quality from the user.
+Multiple tests can be assigned to each \texttt{ME} and their details and report can be accessed via a context menu.
 As mentioned before each \texttt{ME} is a valid ROOT object and can, therefore, use all the functionalities ROOT offers (fitting, re-scaling, etc.).
 This proves particularly useful during data taking to quickly glance and analyze a specific subset of data.
 Multiple instances of this interface can be opened on any host, provided they are on the same network and connect to the available \textit{Monitor Element Collectors}.
@@ -311,7 +313,7 @@ Since then, other experiments from the CALICE collaboration adopted the framewor
 \label{sec:conclusion}
 
 A new generic framework for data quality monitoring for high energy physics, DQM4hep, has been developed without any assumption on the underlying event data model implementation or data format.
-These core \textcolor{red}{\textbf{guidelines (find better phrasing)}} promote high degrees of portability and reusability across experiments.
+These core guidelines promote high degrees of portability and reusability across experiments.
 This software solution provides tools to develop data analyses and quality assessment of any experiments data.
 It can be deployed for both online (i.e real-time data taking) and offline (i.e simulation or pre-recorded data) setups.
 
